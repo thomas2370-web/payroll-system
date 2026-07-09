@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{{ teacher.name }} — QR code{% endblock %}
+{% block content %}
+<div class="card" style="max-width: 320px;">
+    <div class="card-body text-center">
+        <h5>{{ teacher.name }}</h5>
+        <p class="text-muted">{{ teacher.subject }}</p>
+        {% if teacher.qr_image %}
+            <img src="{{ teacher.qr_image.url }}" class="qr-image" alt="QR code for {{ teacher.name }}">
+        {% else %}
+            <p class="text-muted">No QR code generated yet.</p>
+        {% endif %}
+        <p class="small text-muted mt-2">Present this code to the Discipline Master for check-in/check-out.</p>
+    </div>
+</div>
+{% endblock %}

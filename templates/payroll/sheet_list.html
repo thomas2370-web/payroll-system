@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Payment Sheets{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="flex-between">
+        <div>
+            <h1>💰 Payment Sheets</h1>
+            <p class="page-subtitle">Manage monthly payment sheets and staff disbursements</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    {% if user.is_accountant %}
+    <!-- Generate Sheet Card -->
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="m-0">📋 Generate Monthly Sheet</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" class="needs-validation">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="id_month" class="form-label">Select Month</label>
+                        {{ form.month }}
+                    </div>
+
+                    {% if form.month.errors %}
+                        <div class="alert alert-danger small mb-3">
+                            {{ form.month.errors.0 }}
+                        </div>
+                    {% endif %}
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        ✨ Generate Sheet
+                    </button>
+                </form>
+
+                <div class="alert alert-info mt-3 small" role="alert">
+                    <strong>Tip:</strong> Generate a new payment sheet for the selected month. The system will calculate all salaries based on attendance records.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content - Full Width -->
+    <div class="col-lg-8 col-md-6">
+    {% else %}
+    <div class="col-12">
+    {% endif %}
+        <!-- Sheets Table -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="m-0">📊 All Payment Sheets</h5>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sheet in sheets %}
+                            <tr>
+                                <td>
+                                    <strong>{{ sheet.month|date:"F Y" }}</strong>
+                                </td>
+                                <td>
+                                    {% if sheet.status == 'DRAFT' %}
+                                        <span class="status status-draft">● Draft</span>
+                                    {% elif sheet.status == 'SUBMITTED' %}
+                                        <span class="status status-pending">● Pending</span>
+                                    {% elif sheet.status == 'APPROVED' %}
+                                        <span class="status status-approved">● Approved</span>
+                                    {% elif sheet.status == 'REJECTED' %}
+                                        <span class="status status-rejected">● Rejected</span>
+                                    {% elif sheet.status == 'DISBURSED' %}
+                                        <span class="status status-success">● Disbursed</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <a href="{% url 'payroll:sheet_detail' sheet.pk %}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        View Details →
+                                    </a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center py-4">
+                                    <div class="empty-state">
+                                        <div class="empty-state-icon">📭</div>
+                                        <p class="text-muted">No payment sheets yet</p>
+                                        {% if user.is_accountant %}
+                                            <p class="text-secondary small">Create the first sheet using the form on the right</p>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

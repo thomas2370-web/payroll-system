@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}My payslips{% endblock %}
+{% block content %}
+<h3>My payslips</h3>
+<table class="table table-bordered bg-white">
+    <thead><tr><th>Month</th><th>Amount (FCFA)</th><th>Sheet status</th><th>Signed</th><th></th></tr></thead>
+    <tbody>
+    {% for e in entries %}
+        <tr>
+            <td>{{ e.sheet.month|date:"F Y" }}</td>
+            <td>{{ e.amount }}</td>
+            <td>{{ e.sheet.get_status_display }}</td>
+            <td>{% if e.signed %}Yes — {{ e.signed_at|date:"d/m H:i" }}{% else %}No{% endif %}</td>
+            <td>
+                {% if e.sheet.status == "APPROVED" and not e.signed %}
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="entry_id" value="{{ e.pk }}">
+                        <button class="btn btn-sm btn-success" type="submit">Confirm receipt & sign</button>
+                    </form>
+                {% endif %}
+            </td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="5" class="text-muted">No payslips yet.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

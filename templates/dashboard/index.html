@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payroll Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-shell">
+  <div class="page-header d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+    <div>
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <span class="badge badge-primary">Live overview</span>
+        <span class="text-muted">Updated 5 min ago</span>
+      </div>
+      <h1 class="mb-1">Payroll Control Center</h1>
+      <p class="page-subtitle mb-0">Monitor payroll health, team costs, and approvals from a single place.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="{% url 'payroll:sheet_list' %}" class="btn btn-outline-primary">View payroll runs</a>
+      <a href="{% url 'staff:teacher_list' %}" class="btn btn-primary">Manage employees</a>
+    </div>
+  </div>
+
+  <section class="dashboard-grid mb-4">
+    <article class="stat-card">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <span class="stat-label">Total Employees</span>
+        <span class="badge badge-primary">+4.2%</span>
+      </div>
+      <div class="stat-value">128</div>
+      <p class="text-muted mb-0">Across teaching and support roles</p>
+    </article>
+    <article class="stat-card">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <span class="stat-label">Total Payroll This Month</span>
+        <span class="badge badge-success">On track</span>
+      </div>
+      <div class="stat-value">$84,320</div>
+      <p class="text-muted mb-0">Estimated payout for July 2026</p>
+    </article>
+    <article class="stat-card">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <span class="stat-label">Pending Approvals</span>
+        <span class="badge badge-warning">3 items</span>
+      </div>
+      <div class="stat-value">3</div>
+      <p class="text-muted mb-0">Awaiting review from finance leadership</p>
+    </article>
+    <article class="stat-card">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <span class="stat-label">Next Pay Date</span>
+        <span class="badge badge-secondary">Scheduled</span>
+      </div>
+      <div class="stat-value">Jul 31</div>
+      <p class="text-muted mb-0">Disbursement window opens at 9:00 AM</p>
+    </article>
+  </section>
+
+  <section class="row g-4 mb-4">
+    <div class="col-12 col-xl-8">
+      <div class="card h-100">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="mb-0">Payroll cost trend</h5>
+            <p class="text-muted small mb-0">Last 6 months</p>
+          </div>
+          <span class="badge badge-primary">Growth +8.4%</span>
+        </div>
+        <div class="card-body">
+          <canvas id="payrollTrendChart" height="220"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-xl-4">
+      <div class="card h-100">
+        <div class="card-header">
+          <h5 class="mb-0">Team distribution</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="departmentChart" height="240"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="row g-4">
+    <div class="col-12 col-lg-8">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="mb-0">Recent activity</h5>
+            <p class="text-muted small mb-0">Latest payroll actions and approvals</p>
+          </div>
+          <a href="{% url 'payroll:sheet_list' %}" class="text-primary small">View all</a>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>Action</th>
+                  <th>Employee</th>
+                  <th>Time</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Payroll sheet submitted</td>
+                  <td>Grace Lewis</td>
+                  <td>12m ago</td>
+                  <td><span class="status status-pending">Pending</span></td>
+                </tr>
+                <tr>
+                  <td>Approval granted</td>
+                  <td>Marcus Bell</td>
+                  <td>32m ago</td>
+                  <td><span class="status status-approved">Approved</span></td>
+                </tr>
+                <tr>
+                  <td>Salary entry signed</td>
+                  <td>Amara Okafor</td>
+                  <td>1h ago</td>
+                  <td><span class="status status-approved">Signed</span></td>
+                </tr>
+                <tr>
+                  <td>Rejection returned</td>
+                  <td>Daniel Cruz</td>
+                  <td>2h ago</td>
+                  <td><span class="status status-rejected">Rejected</span></td>
+                </tr>
+                <tr>
+                  <td>New payroll run created</td>
+                  <td>Finance Ops</td>
+                  <td>Yesterday</td>
+                  <td><span class="status status-draft">Draft</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Upcoming pay runs</h5>
+        </div>
+        <div class="card-body">
+          <div class="d-flex flex-column gap-3">
+            <div class="p-3 rounded border">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <strong>July 31, 2026</strong>
+                <span class="badge badge-warning">Scheduled</span>
+              </div>
+              <p class="small text-muted mb-0">Monthly disbursement for teaching staff</p>
+            </div>
+            <div class="p-3 rounded border">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <strong>August 15, 2026</strong>
+                <span class="badge badge-secondary">Draft</span>
+              </div>
+              <p class="small text-muted mb-0">Support staff and contractor review</p>
+            </div>
+            <div class="p-3 rounded border">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <strong>August 30, 2026</strong>
+                <span class="badge badge-success">Ready</span>
+              </div>
+              <p class="small text-muted mb-0">Final approval cycle for academic month</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+  const payrollTrendCtx = document.getElementById('payrollTrendChart');
+  if (payrollTrendCtx) {
+    new Chart(payrollTrendCtx, {
+      type: 'line',
+      data: {
+        labels: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+        datasets: [{
+          label: 'Payroll cost',
+          data: [62000, 65500, 68900, 71400, 76800, 84320],
+          borderColor: '#2563eb',
+          backgroundColor: 'rgba(37, 99, 235, 0.16)',
+          fill: true,
+          tension: 0.38,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, ticks: { callback: (value) => '$' + value.toLocaleString() } }
+        }
+      }
+    });
+  }
+
+  const departmentCtx = document.getElementById('departmentChart');
+  if (departmentCtx) {
+    new Chart(departmentCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Teaching', 'Operations', 'Finance', 'Administration'],
+        datasets: [{
+          data: [54, 23, 18, 33],
+          backgroundColor: ['#2563eb', '#60a5fa', '#cbd5e1', '#1d4ed8'],
+          hoverOffset: 8,
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } }
+      }
+    });
+  }
+</script>
+{% endblock %}

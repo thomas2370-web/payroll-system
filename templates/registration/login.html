@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Login - Payroll System{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-center" style="min-height: 500px;">
+    <div style="width: 100%; max-width: 400px;">
+        <!-- Header -->
+        <div class="text-center mb-4">
+            <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">🏫</h1>
+            <h2 style="font-size: 1.875rem; margin-bottom: 0.5rem;">Welcome Back</h2>
+            <p class="text-secondary">Sign in to your account to continue</p>
+        </div>
+
+        <!-- Login Card -->
+        <div class="card border-0">
+            <div class="card-body p-5">
+                <form method="post" class="needs-validation">
+                    {% csrf_token %}
+
+                    <!-- Non-field Errors -->
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger mb-4">
+                            {% for error in form.non_field_errors %}
+                                <p class="mb-0">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <!-- Username Field -->
+                    <div class="mb-4">
+                        <label for="id_username" class="form-label">Username</label>
+                        <input type="text" 
+                               class="form-control {% if form.username.errors %}is-invalid{% endif %}" 
+                               id="id_username"
+                               name="username" 
+                               placeholder="Enter your username"
+                               value="{{ form.username.value|default:'' }}"
+                               required>
+                        {% if form.username.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.username.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="mb-4">
+                        <label for="id_password" class="form-label">Password</label>
+                        <input type="password" 
+                               class="form-control {% if form.password.errors %}is-invalid{% endif %}" 
+                               id="id_password"
+                               name="password" 
+                               placeholder="Enter your password"
+                               required>
+                        {% if form.password.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.password.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary w-100 py-2 mb-3">Sign In</button>
+
+                    <!-- Demo Credentials Info -->
+                    <div class="alert alert-info small" role="alert">
+                        <strong>Demo Credentials:</strong><br>
+                        👨‍💼 principal / changeme123<br>
+                        👮 discipline / changeme123<br>
+                        💰 accountant / changeme123<br>
+                        👔 proprietor / changeme123<br>
+                        👨‍🏫 teacher_demo / changeme123
+                    </div>
+
+                    <input type="hidden" name="next" value="{{ next }}">
+                </form>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <p class="text-center text-secondary small mt-4">
+            CBCDG School Management System
+        </p>
+    </div>
+</div>
+
+<style>
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+    }
+
+    main {
+        flex: 1;
+        background: transparent;
+        padding-top: 0;
+    }
+
+    .navbar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.95) !important;
+    }
+</style>
+{% endblock %}

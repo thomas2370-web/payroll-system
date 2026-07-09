@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Fixed-salary staff{% endblock %}
+{% block content %}
+<h3>Fixed-salary staff</h3>
+<div class="row">
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Add fixed-salary staff</h5>
+                <form method="post">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {{ field.errors }}
+                        </div>
+                    {% endfor %}
+                    <button class="btn btn-primary" type="submit">Add</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-7">
+        <table class="table table-bordered bg-white">
+            <thead><tr><th>Name</th><th>Role</th><th>Fixed salary (FCFA)</th></tr></thead>
+            <tbody>
+            {% for s in staff_members %}
+                <tr><td>{{ s.name }}</td><td>{{ s.role_title }}</td><td>{{ s.fixed_salary }}</td></tr>
+            {% empty %}
+                <tr><td colspan="3" class="text-muted">None added yet.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Apply penalty{% endblock %}
+{% block content %}
+<h3>Apply penalty — {{ record.teacher.name }} ({{ record.session_date }})</h3>
+<div class="card" style="max-width: 480px;">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="mb-3">
+                    <label class="form-label">{{ field.label }}</label>
+                    {{ field }}
+                    {{ field.errors }}
+                </div>
+            {% endfor %}
+            <p class="text-muted small">A written justification is required — the system will not save a penalty without one.</p>
+            <button class="btn btn-danger" type="submit">Save penalty</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Scan QR{% endblock %}
+{% block content %}
+<h3>Scan teacher QR code</h3>
+<div class="row">
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-body">
+                <div id="qr-reader" style="width: 100%;"></div>
+                <p class="text-muted small mt-2">Point the camera at a teacher's QR code, or type the token manually below.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-body">
+                <form method="post" id="scan-form">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.qr_token.label }}</label>
+                        {{ form.qr_token }}
+                        {{ form.qr_token.errors }}
+                    </div>
+                    <button class="btn btn-success me-2" type="submit" name="action" value="check_in">Check in</button>
+                    <button class="btn btn-warning" type="submit" name="action" value="check_out">Check out</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script>
+    // Auto-fills the token field once a QR code is decoded from the camera feed.
+    // Requires camera permission; falls back gracefully to manual entry if unavailable.
+    const scanner = new Html5Qrcode("qr-reader");
+    Html5Qrcode.getCameras().then(cameras => {
+        if (cameras && cameras.length) {
+            scanner.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: 220 },
+                (decodedText) => {
+                    document.querySelector('input[name="qr_token"]').value = decodedText;
+                }
+            ).catch(() => {});
+        }
+    }).catch(() => {});
+</script>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Payment sheet — {{ sheet.month|date:"F Y" }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>{{ sheet.month|date:"F Y" }} <span class="badge bg-secondary">{{ sheet.get_status_display }}</span></h3>
+    <a href="{% url 'payroll:sheet_pdf' sheet.pk %}" class="btn btn-outline-secondary btn-sm" target="_blank">Download PDF</a>
+</div>
+
+{% if sheet.rejection_reason %}
+    <div class="alert alert-warning">Previously rejected: {{ sheet.rejection_reason }}</div>
+{% endif %}
+
+<table class="table table-bordered bg-white">
+    <thead><tr><th>Staff member</th><th>Type</th><th>Adjusted hours</th><th>Amount (FCFA)</th><th>Signed</th></tr></thead>
+    <tbody>
+    {% for e in entries %}
+        <tr>
+            <td>{{ e.staff_name }}</td>
+            <td>{% if e.teacher %}Hourly{% else %}Fixed{% endif %}</td>
+            <td>{{ e.adjusted_hours|default:"—" }}</td>
+            <td>{{ e.amount }}</td>
+            <td>{% if e.signed %}Yes — {{ e.signed_at|date:"d/m H:i" }}{% else %}No{% endif %}</td>
+        </tr>
+    {% endfor %}
+    <tr class="fw-bold"><td colspan="3">Total</td><td>{{ total }}</td><td></td></tr>
+    </tbody>
+</table>
+
+<div class="card" style="max-width: 480px;">
+    <div class="card-body">
+        {% if sheet.status == "DRAFT" and user.is_accountant %}
+            <form method="post">
+                {% csrf_token %}
+                <button class="btn btn-primary" type="submit" name="action" value="submit">Submit for approval</button>
+            </form>
+        {% elif sheet.status == "PENDING_APPROVAL" and user.is_proprietor %}
+            <form method="post" class="mb-3">
+                {% csrf_token %}
+                <button class="btn btn-success" type="submit" name="action" value="approve">Approve</button>
+            </form>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-2">{{ reject_form.reason }}</div>
+                <button class="btn btn-outline-danger" type="submit" name="action" value="reject">Reject</button>
+            </form>
+        {% elif sheet.status == "APPROVED" %}
+            <p class="text-muted">Approved — staff can now sign for their payslip.</p>
+        {% elif sheet.status == "DISBURSED" %}
+            <p class="text-success">All staff have signed. Disbursement complete.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
