@@ -5,7 +5,9 @@ services:
     region: oregon
     plan: free
     buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate"
+    # Render runs this during deploy/release for fresh databases.
     startCommand: "gunicorn config.wsgi:application"
+    releaseCommand: "python manage.py migrate && python manage.py collectstatic --noinput && python manage.py seed_demo_data"
     envVars:
       - key: DJANGO_SECRET_KEY
         generateValue: true
