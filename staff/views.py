@@ -13,7 +13,30 @@ def teacher_register(request):
     if request.method == "POST":
         form = TeacherForm(request.POST)
         if form.is_valid():
-            teacher = form.save()
+            username = form.cleaned_data["username"]
+            password = form.cleaned_data["password"]
+            teacher_user = User.objects.filter(username=username).first()
+            created = teacher_user is None
+
+            if teacher_user is None:
+                teacher_user = User.objects.create_user(
+                    username=username,
+                    password=password,
+                    role=User.Role.TEACHER,
+                    first_name="",
+                    last_name="",
+                )
+            else:
+                if teacher_user.role != User.Role.TEACHER:
+                    messages.error(request, "That username is already assigned to another role.")
+                    return render(request, "staff/teacher_register.html", {"form": form})
+                teacher_user.role = User.Role.TEACHER
+                teacher_user.set_password(password)
+                teacher_user.save(update_fields=["role", "password"])
+
+            teacher = form.save(commit=False)
+            teacher.user = teacher_user
+            teacher.save()
             messages.success(request, f"{teacher.name} registered and QR code generated.")
             return redirect("staff:teacher_list")
     else:
