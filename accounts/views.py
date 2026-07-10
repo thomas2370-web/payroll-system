@@ -1,6 +1,7 @@
+from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 
 from staff.models import Teacher
 from .models import User
@@ -74,4 +75,42 @@ def home(request):
 
 @login_required
 def dashboard(request):
+    if request.user.is_super_admin:
+        users = User.objects.order_by("username")
+        return render(request, "dashboard/super_admin_dashboard.html", {"users": users})
     return render(request, "dashboard/index.html")
+
+
+@login_required
+def reset_user_password(request, user_id):
+    if not request.user.is_super_admin:
+        messages.error(request, "Only Super Admin can change passwords.")
+        return redirect("dashboard")
+
+    target_user = get_object_or_404(User, pk=user_id)
+    if request.method == "POST":
+        new_password = request.POST.get("new_password") or ""
+        if len(new_password) < 4:
+            messages.error(request, "Password must be at least 4 characters.")
+        else:
+            target_user.set_password(new_password)
+            target_user.save(update_fields=["password"])
+            messages.success(request, f"Password reset for {target_user.username}.")
+    return redirect("dashboard")
+
+
+@login_required
+def delete_user(request, user_id):
+    if not request.user.is_super_admin:
+        messages.error(request, "Only Super Admin can delete users.")
+        return redirect("dashboard")
+
+    target_user = get_object_or_404(User, pk=user_id)
+    if target_user.pk == request.user.pk:
+        messages.error(request, "You cannot delete your own account.")
+        return redirect("dashboard")
+
+    username = target_user.username
+    target_user.delete()
+    messages.success(request, f"Deleted user {username}.")
+    return redirect("dashboard")
