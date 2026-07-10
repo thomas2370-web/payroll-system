@@ -1,29 +1,80 @@
 {% extends "base.html" %}
 {% block title %}My payslips{% endblock %}
 {% block content %}
-<h3>My payslips</h3>
-<table class="table table-bordered bg-white">
-    <thead><tr><th>Month</th><th>Amount (FCFA)</th><th>Sheet status</th><th>Signed</th><th></th></tr></thead>
-    <tbody>
-    {% for e in entries %}
-        <tr>
-            <td>{{ e.sheet.month|date:"F Y" }}</td>
-            <td>{{ e.amount }}</td>
-            <td>{{ e.sheet.get_status_display }}</td>
-            <td>{% if e.signed %}Yes — {{ e.signed_at|date:"d/m H:i" }}{% else %}No{% endif %}</td>
-            <td>
-                {% if e.sheet.status == "APPROVED" and not e.signed %}
-                    <form method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="entry_id" value="{{ e.pk }}">
-                        <button class="btn btn-sm btn-success" type="submit">Confirm receipt & sign</button>
-                    </form>
-                {% endif %}
-            </td>
-        </tr>
-    {% empty %}
-        <tr><td colspan="5" class="text-muted">No payslips yet.</td></tr>
-    {% endfor %}
-    </tbody>
-</table>
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-slate-900 mb-2">📄 My Payslips</h1>
+    <p class="text-slate-600">View and sign your monthly payslips</p>
+</div>
+
+<div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr class="border-b border-slate-200 bg-slate-50">
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide">Month</th>
+                    <th class="px-6 py-4 text-right text-xs font-semibold text-slate-700 uppercase tracking-wide">Amount</th>
+                    <th class="px-6 py-4 text-center text-xs font-semibold text-slate-700 uppercase tracking-wide">Sheet Status</th>
+                    <th class="px-6 py-4 text-center text-xs font-semibold text-slate-700 uppercase tracking-wide">Signed</th>
+                    <th class="px-6 py-4 text-right text-xs font-semibold text-slate-700 uppercase tracking-wide">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in entries %}
+                <tr class="border-b border-slate-200 hover:bg-slate-50 transition-colors">
+                    <td class="px-6 py-4">
+                        <strong class="text-slate-900">{{ e.sheet.month|date:"F Y" }}</strong>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <span class="font-mono font-semibold text-slate-900">{{ e.amount }} CFA</span>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        {% if e.sheet.status == 'DRAFT' %}
+                            <span class="px-3 py-1 bg-slate-100 text-slate-700 text-xs font-semibold rounded-full">Draft</span>
+                        {% elif e.sheet.status == 'SUBMITTED' %}
+                            <span class="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-semibold rounded-full">Pending</span>
+                        {% elif e.sheet.status == 'APPROVED' %}
+                            <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">Approved</span>
+                        {% elif e.sheet.status == 'REJECTED' %}
+                            <span class="px-3 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded-full">Rejected</span>
+                        {% elif e.sheet.status == 'DISBURSED' %}
+                            <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">Disbursed</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        {% if e.signed %}
+                        <div class="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                            {{ e.signed_at|date:"d/m H:i" }}
+                        </div>
+                        {% else %}
+                        <span class="text-slate-400 text-sm">Not signed</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        {% if e.sheet.status == "APPROVED" and not e.signed %}
+                        <form method="post" class="inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="entry_id" value="{{ e.pk }}">
+                            <button class="inline-flex items-center gap-1 px-3 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200" type="submit">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                                Sign & Confirm
+                            </button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-6 py-12 text-center">
+                        <div class="inline-flex flex-col items-center">
+                            <div class="text-4xl mb-2">📭</div>
+                            <p class="text-slate-500 font-medium">No payslips yet</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock %}

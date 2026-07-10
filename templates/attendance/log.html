@@ -1,24 +1,77 @@
 {% extends "base.html" %}
 {% block title %}Attendance log{% endblock %}
 {% block content %}
-<h3>Attendance log</h3>
-<table class="table table-bordered bg-white">
-    <thead><tr><th>Teacher</th><th>Date</th><th>Check-in</th><th>Check-out</th><th>Hours worked</th>{% if user.is_discipline_master %}<th></th>{% endif %}</tr></thead>
-    <tbody>
-    {% for r in records %}
-        <tr>
-            <td>{{ r.teacher.name }}</td>
-            <td>{{ r.session_date }}</td>
-            <td>{{ r.check_in|time:"H:i"|default:"—" }}</td>
-            <td>{{ r.check_out|time:"H:i"|default:"—" }}</td>
-            <td>{{ r.hours_worked }}</td>
-            {% if user.is_discipline_master %}
-                <td><a href="{% url 'attendance:add_adjustment' r.pk %}" class="btn btn-sm btn-outline-danger">Apply penalty</a></td>
-            {% endif %}
-        </tr>
-    {% empty %}
-        <tr><td colspan="6" class="text-muted">No attendance records yet.</td></tr>
-    {% endfor %}
-    </tbody>
-</table>
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-slate-900 mb-2">📋 Attendance Log</h1>
+    <p class="text-slate-600">View and manage attendance records for all staff</p>
+</div>
+
+<div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr class="border-b border-slate-200 bg-slate-50">
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide">Teacher</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide">Date</th>
+                    <th class="px-6 py-4 text-center text-xs font-semibold text-slate-700 uppercase tracking-wide">Check-in</th>
+                    <th class="px-6 py-4 text-center text-xs font-semibold text-slate-700 uppercase tracking-wide">Check-out</th>
+                    <th class="px-6 py-4 text-center text-xs font-semibold text-slate-700 uppercase tracking-wide">Hours Worked</th>
+                    {% if user.is_discipline_master %}<th class="px-6 py-4 text-right text-xs font-semibold text-slate-700 uppercase tracking-wide">Actions</th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in records %}
+                <tr class="border-b border-slate-200 hover:bg-slate-50 transition-colors">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="inline-flex items-center justify-center w-10 h-10 bg-primary-100 rounded-lg">
+                                <svg class="w-5 h-5 text-primary-600" fill="currentColor" viewBox="0 0 20 20"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/></svg>
+                            </div>
+                            <span class="font-semibold text-slate-900">{{ r.teacher.name }}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-slate-700">{{ r.session_date }}</td>
+                    <td class="px-6 py-4 text-center font-mono font-medium">
+                        {% if r.check_in %}
+                            <span class="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 text-sm rounded">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v2h16V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"/></svg>
+                                {{ r.check_in|time:"H:i" }}
+                            </span>
+                        {% else %}
+                            <span class="text-slate-400">—</span>
+                        {% endif %}
+                    </td>\n                    <td class="px-6 py-4 text-center font-mono font-medium">
+                        {% if r.check_out %}
+                            <span class="inline-flex items-center gap-1 px-2 py-1 bg-amber-100 text-amber-700 text-sm rounded">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"/></svg>
+                                {{ r.check_out|time:"H:i" }}
+                            </span>
+                        {% else %}
+                            <span class="text-slate-400">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-center font-semibold text-slate-900">{{ r.hours_worked }}h</td>
+                    {% if user.is_discipline_master %}
+                    <td class="px-6 py-4 text-right">
+                        <a href="{% url 'attendance:add_adjustment' r.pk %}" class="inline-flex items-center gap-1 px-3 py-2 border border-red-600 text-red-600 text-sm font-medium rounded-lg hover:bg-red-50 transition-colors duration-200">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M13.477 14.89A6 6 0 015.11 2.526a6 6 0 008.367 8.364m1.497 3.322c.666-1.33 1.25-2.74 1.653-4.186L19 5m-2 5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            Penalty
+                        </a>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="{% if user.is_discipline_master %}6{% else %}5{% endif %}" class="px-6 py-12 text-center">
+                        <div class="inline-flex flex-col items-center">
+                            <div class="text-4xl mb-2">📭</div>
+                            <p class="text-slate-500 font-medium">No attendance records yet</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock %}

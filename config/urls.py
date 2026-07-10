@@ -5,13 +5,13 @@ from django.contrib.auth import views as auth_views
 from django.urls import include, path
 
 from accounts.forms import StyledAuthenticationForm
-from accounts.views import dashboard, home
+from accounts.views import custom_login, dashboard, home
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", home, name="home"),
     path("dashboard/", dashboard, name="dashboard"),
-    path("login/", auth_views.LoginView.as_view(authentication_form=StyledAuthenticationForm), name="login"),
+    path("login/", custom_login, name="login"),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("staff/", include("staff.urls")),
     path("attendance/", include("attendance.urls")),

@@ -12,7 +12,7 @@ DEMO_USERS = [
     ("accountant", "ACCOUNTANT", "Brenda Fon"),
     ("proprietor", "PROPRIETOR", "Dr. Jean Kamga"),
 ]
-DEMO_PASSWORD = "changeme123"
+DEMO_PASSWORD = "thegame"
 
 
 class Command(BaseCommand):

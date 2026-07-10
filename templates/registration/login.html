@@ -1,109 +1,268 @@
 {% extends "base.html" %}
-{% block title %}Login - Payroll System{% endblock %}
-
+{% load static %}
+{% block title %}Sign In — CBCDG Payroll System{% endblock %}
 {% block content %}
-<div class="d-flex align-items-center justify-content-center" style="min-height: 500px;">
-    <div style="width: 100%; max-width: 400px;">
-        <!-- Header -->
-        <div class="text-center mb-4">
-            <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">🏫</h1>
-            <h2 style="font-size: 1.875rem; margin-bottom: 0.5rem;">Welcome Back</h2>
-            <p class="text-secondary">Sign in to your account to continue</p>
+<style>
+    body {
+        background: transparent;
+        min-height: 100vh;
+    }
+    nav {
+        display: none;
+    }
+    footer {
+        display: none;
+    }
+    main {
+        background: transparent;
+        padding: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+
+<div class="min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden">
+    <!-- Background Image with Overlay -->
+    <div class="absolute inset-0 z-0">
+        <img src="{% static 'img/login-bg.webp' %}" alt="Background" class="w-full h-full object-cover opacity-20 blur-sm">
+        <div class="absolute inset-0 bg-gradient-to-br from-slate-900/70 via-primary-900/60 to-orange-900/50"></div>
+    </div>
+
+    <!-- Content Container -->
+    <div class="relative z-10 w-full max-w-2xl">
+        <!-- Header with Logo -->
+        <div class="text-center mb-8">
+            <div class="flex justify-center mb-6">
+                <div class="inline-block relative group">
+                    <img src="{% static 'img/logo.webp' %}" alt="CGC Logo" class="w-24 h-24 rounded-full shadow-2xl border-4 border-white/20 group-hover:shadow-2xl transition-shadow duration-300">
+                    <div class="absolute -bottom-1 -right-1 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full p-2.5 shadow-lg border-2 border-white">
+                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"/></svg>
+                    </div>
+                </div>
+            </div>
+            <h1 class="text-4xl font-bold text-white mb-2 drop-shadow-lg">Welcome</h1>
+            <p class="text-white/90 font-light text-lg">Sign in to your CBCDG Payroll account</p>
         </div>
 
+        <!-- Error Messages -->
+        {% if error %}
+        <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg shadow-md">
+            <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"/>
+                </svg>
+                <p class="text-red-700 font-medium">{{ error }}</p>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Login Card -->
-        <div class="card border-0">
-            <div class="card-body p-5">
-                <form method="post" class="needs-validation">
-                    {% csrf_token %}
+        <div class="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl overflow-hidden border border-white/30">
+            <!-- Accent Bar -->
+            <div class="h-1.5 bg-gradient-to-r from-primary-500 via-orange-500 to-primary-600"></div>
+            
+            <!-- Form Section -->
+            <form method="post" class="p-8">
+                {% csrf_token %}
 
-                    <!-- Non-field Errors -->
-                    {% if form.non_field_errors %}
-                        <div class="alert alert-danger mb-4">
-                            {% for error in form.non_field_errors %}
-                                <p class="mb-0">{{ error }}</p>
-                            {% endfor %}
+                <!-- Role Selection -->
+                <div class="mb-8">
+                    <label class="block text-sm font-bold text-slate-900 mb-4">Select Your Role</label>
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                        <button type="button" class="role-btn px-4 py-3 rounded-lg border-2 border-slate-300 text-slate-700 font-semibold hover:border-blue-500 hover:bg-blue-50 transition-all flex flex-col items-center gap-2" data-role="PRINCIPAL">
+                            <span class="text-2xl">👨‍💼</span>
+                            <span class="text-xs">Principal</span>
+                        </button>
+                        <button type="button" class="role-btn px-4 py-3 rounded-lg border-2 border-slate-300 text-slate-700 font-semibold hover:border-amber-500 hover:bg-amber-50 transition-all flex flex-col items-center gap-2" data-role="DISCIPLINE_MASTER">
+                            <span class="text-2xl">👮</span>
+                            <span class="text-xs">Discipline</span>
+                        </button>
+                        <button type="button" class="role-btn px-4 py-3 rounded-lg border-2 border-slate-300 text-slate-700 font-semibold hover:border-green-500 hover:bg-green-50 transition-all flex flex-col items-center gap-2" data-role="ACCOUNTANT">
+                            <span class="text-2xl">💰</span>
+                            <span class="text-xs">Accountant</span>
+                        </button>
+                        <button type="button" class="role-btn px-4 py-3 rounded-lg border-2 border-slate-300 text-slate-700 font-semibold hover:border-purple-500 hover:bg-purple-50 transition-all flex flex-col items-center gap-2" data-role="PROPRIETOR">
+                            <span class="text-2xl">👔</span>
+                            <span class="text-xs">Proprietor</span>
+                        </button>
+                        <button type="button" class="role-btn px-4 py-3 rounded-lg border-2 border-slate-300 text-slate-700 font-semibold hover:border-indigo-500 hover:bg-indigo-50 transition-all flex flex-col items-center gap-2" data-role="TEACHER">
+                            <span class="text-2xl">👨‍🏫</span>
+                            <span class="text-xs">Teacher</span>
+                        </button>
+                    </div>
+                    <input type="hidden" id="role_input" name="role" required>
+                </div>
+
+                <!-- Username Field (hidden for teachers) -->
+                <div id="username-section" class="hidden mb-6">
+                    <label for="username" class="block text-sm font-bold text-slate-900 mb-2">Username</label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-primary-600 group-focus-within:text-primary-700 transition-colors" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+                            </svg>
                         </div>
-                    {% endif %}
-
-                    <!-- Username Field -->
-                    <div class="mb-4">
-                        <label for="id_username" class="form-label">Username</label>
                         <input type="text" 
-                               class="form-control {% if form.username.errors %}is-invalid{% endif %}" 
-                               id="id_username"
+                               class="w-full pl-12 pr-4 py-3 border-2 border-slate-300 bg-white group-focus-within:border-primary-500 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-500 transition-all duration-200 font-medium" 
+                               id="username"
                                name="username" 
                                placeholder="Enter your username"
-                               value="{{ form.username.value|default:'' }}"
-                               required>
-                        {% if form.username.errors %}
-                            <div class="invalid-feedback d-block">
-                                {{ form.username.errors.0 }}
-                            </div>
-                        {% endif %}
+                               autocomplete="username">
                     </div>
+                </div>
 
-                    <!-- Password Field -->
-                    <div class="mb-4">
-                        <label for="id_password" class="form-label">Password</label>
+                <!-- Teacher Selection (hidden for non-teachers) -->
+                <div id="teacher-section" class="hidden mb-6">
+                    <label for="teacher_id" class="block text-sm font-bold text-slate-900 mb-3">Select Your Name</label>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-96 overflow-y-auto">
+                        {% for teacher in teachers %}
+                        <button type="button" class="teacher-btn text-left px-4 py-3 rounded-lg border-2 border-slate-300 hover:border-primary-500 hover:bg-primary-50 transition-all flex flex-col gap-1" data-teacher-id="{{ teacher.id }}">
+                            <p class="font-semibold text-slate-900">{{ teacher.name }}</p>
+                            <p class="text-sm text-slate-600">{{ teacher.subject }}</p>
+                        </button>
+                        {% empty %}
+                        <p class="text-slate-500 col-span-full text-center py-8">No teachers registered yet.</p>
+                        {% endfor %}
+                    </div>
+                    <input type="hidden" id="teacher_id" name="teacher_id">
+                </div>
+
+                <!-- Password Field -->
+                <div class="mb-6">
+                    <label for="password" class="block text-sm font-bold text-slate-900 mb-2">Password</label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-primary-600 group-focus-within:text-primary-700 transition-colors" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"/>
+                            </svg>
+                        </div>
                         <input type="password" 
-                               class="form-control {% if form.password.errors %}is-invalid{% endif %}" 
-                               id="id_password"
+                               class="w-full pl-12 pr-4 py-3 border-2 border-slate-300 bg-white group-focus-within:border-primary-500 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-500 transition-all duration-200 font-medium" 
+                               id="password"
                                name="password" 
                                placeholder="Enter your password"
-                               required>
-                        {% if form.password.errors %}
-                            <div class="invalid-feedback d-block">
-                                {{ form.password.errors.0 }}
-                            </div>
-                        {% endif %}
+                               required
+                               autocomplete="current-password">
                     </div>
+                </div>
 
-                    <!-- Submit Button -->
-                    <button type="submit" class="btn btn-primary w-100 py-2 mb-3">Sign In</button>
+                <!-- Sign In Button -->
+                <button type="submit" class="w-full py-3 px-4 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2 group transform hover:-translate-y-0.5" id="submit_btn" disabled>
+                    <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 6H6.28l-.31-1.243A1 1 0 005 4H3z"/>
+                    </svg>
+                    Sign In
+                </button>
 
-                    <!-- Demo Credentials Info -->
-                    <div class="alert alert-info small" role="alert">
-                        <strong>Demo Credentials:</strong><br>
-                        👨‍💼 principal / changeme123<br>
-                        👮 discipline / changeme123<br>
-                        💰 accountant / changeme123<br>
-                        👔 proprietor / changeme123<br>
-                        👨‍🏫 teacher_demo / changeme123
-                    </div>
+                <input type="hidden" name="next" value="{{ next }}">
+            </form>
+        </div>
 
-                    <input type="hidden" name="next" value="{{ next }}">
-                </form>
+        <!-- Demo Credentials Section -->
+        <div class="mt-8 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-white/20">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="inline-flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
+                    <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2z"/>
+                    </svg>
+                </div>
+                <h3 class="font-bold text-slate-900 text-lg">Demo Credentials</h3>
+            </div>
+            <div class="space-y-2.5">
+                <div class="bg-gradient-to-r from-blue-50 to-blue-100/50 rounded-lg p-3 border-l-4 border-blue-500">
+                    <p class="text-xs text-slate-600 font-semibold mb-1">👨‍💼 Principal</p>
+                    <p class="font-mono text-sm text-slate-900 font-bold">thegame / thegame</p>
+                </div>
+                <div class="bg-gradient-to-r from-amber-50 to-amber-100/50 rounded-lg p-3 border-l-4 border-amber-500">
+                    <p class="text-xs text-slate-600 font-semibold mb-1">👮 Discipline Master</p>
+                    <p class="font-mono text-sm text-slate-900 font-bold">thegame / thegame</p>
+                </div>
+                <div class="bg-gradient-to-r from-green-50 to-green-100/50 rounded-lg p-3 border-l-4 border-green-500">
+                    <p class="text-xs text-slate-600 font-semibold mb-1">💰 Accountant</p>
+                    <p class="font-mono text-sm text-slate-900 font-bold">thegame / thegame</p>
+                </div>
+                <div class="bg-gradient-to-r from-purple-50 to-purple-100/50 rounded-lg p-3 border-l-4 border-purple-500">
+                    <p class="text-xs text-slate-600 font-semibold mb-1">👔 Proprietor</p>
+                    <p class="font-mono text-sm text-slate-900 font-bold">thegame / thegame</p>
+                </div>
+                <div class="bg-gradient-to-r from-indigo-50 to-indigo-100/50 rounded-lg p-3 border-l-4 border-indigo-500">
+                    <p class="text-xs text-slate-600 font-semibold mb-1">👨‍🏫 Teacher</p>
+                    <p class="text-slate-600 text-xs">Select your name from the list above • Password: thegame</p>
+                </div>
             </div>
         </div>
 
         <!-- Footer -->
-        <p class="text-center text-secondary small mt-4">
-            CBCDG School Management System
-        </p>
+        <div class="mt-8 text-center text-white/80 text-sm font-light">
+            <p>🔒 CBCDG School Management System • Secure Payroll & Attendance</p>
+            <p class="mt-1 text-white/60 text-xs">© 2026 All rights reserved</p>
+        </div>
     </div>
+
+    <script>
+        const roleInput = document.getElementById('role_input');
+        const usernameSection = document.getElementById('username-section');
+        const teacherSection = document.getElementById('teacher-section');
+        const teacherIdInput = document.getElementById('teacher_id');
+        const submitBtn = document.getElementById('submit_btn');
+        const roleBtns = document.querySelectorAll('.role-btn');
+        const teacherBtns = document.querySelectorAll('.teacher-btn');
+        
+        let selectedRole = null;
+        let selectedTeacher = null;
+
+        // Role selection
+        roleBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                roleBtns.forEach(b => b.classList.remove('border-primary-500', 'bg-primary-50', 'border-blue-500', 'bg-blue-50', 'border-amber-500', 'bg-amber-50', 'border-green-500', 'bg-green-50', 'border-purple-500', 'bg-purple-50', 'border-indigo-500', 'bg-indigo-50'));
+                btn.classList.add('border-primary-500', 'bg-primary-50');
+                
+                selectedRole = btn.getAttribute('data-role');
+                roleInput.value = selectedRole;
+                selectedTeacher = null;
+                teacherIdInput.value = '';
+                
+                // Show/hide appropriate input
+                if (selectedRole === 'TEACHER') {
+                    usernameSection.classList.add('hidden');
+                    teacherSection.classList.remove('hidden');
+                } else {
+                    usernameSection.classList.remove('hidden');
+                    teacherSection.classList.add('hidden');
+                }
+                
+                updateSubmitBtn();
+            });
+        });
+
+        // Teacher selection
+        teacherBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                teacherBtns.forEach(b => b.classList.remove('border-primary-500', 'bg-primary-50'));
+                btn.classList.add('border-primary-500', 'bg-primary-50');
+                
+                selectedTeacher = btn.getAttribute('data-teacher-id');
+                teacherIdInput.value = selectedTeacher;
+                updateSubmitBtn();
+            });
+        });
+
+        function updateSubmitBtn() {
+            const passwordFilled = document.getElementById('password').value.trim() !== '';
+            const hasRole = selectedRole !== null;
+            const hasTeacher = selectedRole !== 'TEACHER' || selectedTeacher !== null;
+            const hasUsername = selectedRole === 'TEACHER' || document.getElementById('username').value.trim() !== '';
+            
+            submitBtn.disabled = !(hasRole && hasTeacher && hasUsername && passwordFilled);
+        }
+
+        // Enable submit button when password is filled
+        document.getElementById('password').addEventListener('input', updateSubmitBtn);
+        document.getElementById('username').addEventListener('input', updateSubmitBtn);
+    </script>
 </div>
-
-<style>
-    body {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-    }
-
-    main {
-        flex: 1;
-        background: transparent;
-        padding-top: 0;
-    }
-
-    .navbar {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        background: rgba(255, 255, 255, 0.95) !important;
-    }
-</style>
 {% endblock %}

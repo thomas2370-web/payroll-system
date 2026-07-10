@@ -72,4 +72,4 @@ class SalaryEntry(models.Model):
         return self.teacher.name if self.teacher else self.fixed_staff.name
 
     def __str__(self):
-        return f"{self.staff_name} — {self.amount} FCFA"
+        return f"{self.staff_name} — {self.amount} CFA"

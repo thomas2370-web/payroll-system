@@ -1,52 +1,139 @@
 {% extends "base.html" %}
 {% block title %}Payment sheet — {{ sheet.month|date:"F Y" }}{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h3>{{ sheet.month|date:"F Y" }} <span class="badge bg-secondary">{{ sheet.get_status_display }}</span></h3>
-    <a href="{% url 'payroll:sheet_pdf' sheet.pk %}" class="btn btn-outline-secondary btn-sm" target="_blank">Download PDF</a>
+<!-- Header -->
+<div class="mb-8">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-slate-900 mb-2">{{ sheet.month|date:"F Y" }}</h1>
+            <div class="flex items-center gap-2">
+                {% if sheet.status == 'DRAFT' %}
+                    <span class="px-3 py-1 bg-slate-100 text-slate-700 text-xs font-semibold rounded-full">● Draft</span>
+                {% elif sheet.status == 'SUBMITTED' %}
+                    <span class="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-semibold rounded-full">● Pending</span>
+                {% elif sheet.status == 'APPROVED' %}
+                    <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">● Approved</span>
+                {% elif sheet.status == 'REJECTED' %}
+                    <span class="px-3 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded-full">● Rejected</span>
+                {% elif sheet.status == 'DISBURSED' %}
+                    <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">● Disbursed</span>
+                {% endif %}
+            </div>
+        </div>
+        <a href="{% url 'payroll:sheet_pdf' sheet.pk %}" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 border border-slate-300 text-slate-900 font-medium rounded-lg hover:bg-slate-50 transition-colors duration-200">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/></svg>
+            Download PDF
+        </a>
+    </div>
+
+    {% if sheet.rejection_reason %}
+    <div class="p-4 bg-amber-50 border-l-4 border-amber-400 rounded">
+        <p class="text-amber-900 font-medium">⚠️ Previously rejected</p>
+        <p class="text-amber-700 text-sm mt-1">{{ sheet.rejection_reason }}</p>
+    </div>
+    {% endif %}
 </div>
 
-{% if sheet.rejection_reason %}
-    <div class="alert alert-warning">Previously rejected: {{ sheet.rejection_reason }}</div>
-{% endif %}
+<!-- Payroll Entries Table -->
+<div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-8">
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr class="border-b border-slate-200 bg-slate-50">
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide">Staff Member</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide">Type</th>
+                    <th class="px-6 py-4 text-center text-xs font-semibold text-slate-700 uppercase tracking-wide">Adjusted Hours</th>
+                    <th class="px-6 py-4 text-right text-xs font-semibold text-slate-700 uppercase tracking-wide">Amount</th>
+                    <th class="px-6 py-4 text-center text-xs font-semibold text-slate-700 uppercase tracking-wide">Signed</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in entries %}
+                <tr class="border-b border-slate-200 hover:bg-slate-50 transition-colors">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="inline-flex items-center justify-center w-10 h-10 bg-primary-100 rounded-lg">
+                                <svg class="w-5 h-5 text-primary-600" fill="currentColor" viewBox="0 0 20 20"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/></svg>
+                            </div>
+                            <span class="font-semibold text-slate-900">{{ e.staff_name }}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 {% if e.teacher %}bg-primary-100 text-primary-700{% else %}bg-accent-100 text-accent-700{% endif %} text-xs font-semibold rounded">
+                            {% if e.teacher %}Hourly{% else %}Fixed{% endif %}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-center text-slate-900">{{ e.adjusted_hours|default:"—" }}</td>
+                    <td class="px-6 py-4 text-right font-mono font-semibold text-slate-900">{{ e.amount }} CFA</td>
+                    <td class="px-6 py-4 text-center">
+                        {% if e.signed %}
+                        <div class="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                            {{ e.signed_at|date:"d/m H:i" }}
+                        </div>
+                        {% else %}
+                        <span class="text-slate-400">No</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                <tr class="bg-slate-50 border-t-2 border-slate-300">
+                    <td colspan="3" class="px-6 py-4 font-bold text-slate-900">Total Amount</td>
+                    <td class="px-6 py-4 text-right font-mono font-bold text-slate-900">{{ total }} CFA</td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 
-<table class="table table-bordered bg-white">
-    <thead><tr><th>Staff member</th><th>Type</th><th>Adjusted hours</th><th>Amount (FCFA)</th><th>Signed</th></tr></thead>
-    <tbody>
-    {% for e in entries %}
-        <tr>
-            <td>{{ e.staff_name }}</td>
-            <td>{% if e.teacher %}Hourly{% else %}Fixed{% endif %}</td>
-            <td>{{ e.adjusted_hours|default:"—" }}</td>
-            <td>{{ e.amount }}</td>
-            <td>{% if e.signed %}Yes — {{ e.signed_at|date:"d/m H:i" }}{% else %}No{% endif %}</td>
-        </tr>
-    {% endfor %}
-    <tr class="fw-bold"><td colspan="3">Total</td><td>{{ total }}</td><td></td></tr>
-    </tbody>
-</table>
-
-<div class="card" style="max-width: 480px;">
-    <div class="card-body">
+<!-- Actions -->
+<div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+    <div class="p-8">
         {% if sheet.status == "DRAFT" and user.is_accountant %}
-            <form method="post">
+            <form method="post" class="space-y-4">
                 {% csrf_token %}
-                <button class="btn btn-primary" type="submit" name="action" value="submit">Submit for approval</button>
+                <button class="px-6 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all duration-200" type="submit" name="action" value="submit">
+                    <span class="flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z"/></svg>
+                        Submit for Approval
+                    </span>
+                </button>
             </form>
-        {% elif sheet.status == "PENDING_APPROVAL" and user.is_proprietor %}
-            <form method="post" class="mb-3">
-                {% csrf_token %}
-                <button class="btn btn-success" type="submit" name="action" value="approve">Approve</button>
-            </form>
-            <form method="post">
-                {% csrf_token %}
-                <div class="mb-2">{{ reject_form.reason }}</div>
-                <button class="btn btn-outline-danger" type="submit" name="action" value="reject">Reject</button>
-            </form>
+        {% elif sheet.status == "SUBMITTED" and user.is_proprietor %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <form method="post">
+                    {% csrf_token %}
+                    <button class="w-full px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200" type="submit" name="action" value="approve">
+                        <span class="flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                            Approve
+                        </span>
+                    </button>
+                </form>
+                <form method="post" class="space-y-3">
+                    {% csrf_token %}
+                    <div>
+                        {{ reject_form.reason }}
+                    </div>
+                    <button class="w-full px-6 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200" type="submit" name="action" value="reject">
+                        <span class="flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+                            Reject
+                        </span>
+                    </button>
+                </form>
+            </div>
         {% elif sheet.status == "APPROVED" %}
-            <p class="text-muted">Approved — staff can now sign for their payslip.</p>
+            <div class="p-4 bg-green-50 border-l-4 border-green-400 rounded">
+                <p class="text-green-900 font-medium">✅ Sheet Approved</p>
+                <p class="text-green-700 text-sm mt-1">Staff members can now sign for their payslips and confirm receipt.</p>
+            </div>
         {% elif sheet.status == "DISBURSED" %}
-            <p class="text-success">All staff have signed. Disbursement complete.</p>
+            <div class="p-4 bg-green-50 border-l-4 border-green-400 rounded">
+                <p class="text-green-900 font-medium">✅ Disbursement Complete</p>
+                <p class="text-green-700 text-sm mt-1">All staff have signed their payslips. Funds have been disbursed.</p>
+            </div>
         {% endif %}
     </div>
 </div>
