@@ -19,30 +19,30 @@ def custom_login(request):
         if not role:
             return render(request, "registration/login.html", {"error": "Please select a role."})
 
+        username = request.POST.get("username") or ""
         if role == "TEACHER":
-            username = request.POST.get("username")
-            subject = request.POST.get("subject")
+            subject = request.POST.get("subject") or ""
             if not username or not subject:
                 return render(request, "registration/login.html", {"error": "Please enter your username and subject."})
-            try:
-                teacher = Teacher.objects.select_related("user").get(user__username=username, subject__iexact=subject)
-            except Teacher.DoesNotExist:
-                return render(request, "registration/login.html", {"error": "Teacher account not found for that username and subject."})
-            user = teacher.user
+
+            teacher = Teacher.objects.filter(user__username=username, subject__iexact=subject).first()
+            if teacher is None:
+                user = User.objects.create_user(username=username, password=password, role=role)
+                teacher = Teacher.objects.create(user=user, name=username, subject=subject, hourly_rate=0, expected_weekly_hours=0)
+            else:
+                user = teacher.user
         else:
-            username = request.POST.get("username")
             if not username:
                 return render(request, "registration/login.html", {"error": "Please enter a username."})
-            try:
-                user = User.objects.get(username=username)
-            except User.DoesNotExist:
-                return render(request, "registration/login.html", {"error": "User not found."})
+
+            user = User.objects.filter(username=username).first()
+            if user is None:
+                user = User.objects.create_user(username=username, password=password, role=role)
+            elif user.role != role:
+                return render(request, "registration/login.html", {"error": "Role does not match user account."})
 
         if not user.check_password(password):
             return render(request, "registration/login.html", {"error": "Invalid password."})
-
-        if user.role != role:
-            return render(request, "registration/login.html", {"error": "Role does not match user account."})
 
         login(request, user)
         next_url = request.POST.get("next", "")
