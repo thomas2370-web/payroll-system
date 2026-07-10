@@ -3,8 +3,13 @@ Django settings for the Cloud-Based QR Attendance and Payroll
 Management System (Collège Bilingue Charles de Gaulle).
 """
 import os
-import dj_database_url
 from pathlib import Path
+
+try:
+    import dj_database_url
+    HAS_DJ_DATABASE_URL = True
+except ImportError:
+    HAS_DJ_DATABASE_URL = False
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -30,7 +35,7 @@ AUTH_USER_MODEL = "accounts.User"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware" if HAS_DJ_DATABASE_URL else "",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -38,6 +43,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+MIDDLEWARE = [m for m in MIDDLEWARE if m]  # Remove empty strings
 
 ROOT_URLCONF = "config.urls"
 
@@ -60,7 +66,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 # Use PostgreSQL in production (via Render's DATABASE_URL), SQLite in development
-if os.environ.get("DATABASE_URL"):
+if HAS_DJ_DATABASE_URL and os.environ.get("DATABASE_URL"):
     DATABASES = {"default": dj_database_url.config(default=os.environ.get("DATABASE_URL"), conn_max_age=600)}
 else:
     DATABASES = {
@@ -85,7 +91,8 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+if os.environ.get("DJANGO_DEBUG") == "False":
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"  # QR code images are stored here
 
