@@ -4,8 +4,9 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from accounts.permissions import role_required
 from attendance.forms import AdjustmentForm, ScanForm
-from attendance.models import AttendanceRecord
+from attendance.models import Adjustment, AttendanceRecord
 from attendance.services import InvalidQRCode, scan_check_in, scan_check_out
+from staff.models import Teacher
 
 
 @login_required
@@ -57,3 +58,20 @@ def add_adjustment(request, record_id):
     else:
         form = AdjustmentForm()
     return render(request, "attendance/add_adjustment.html", {"form": form, "record": record})
+
+
+@login_required
+@role_required("DISCIPLINE_MASTER", "PRINCIPAL")
+def teacher_adjustment_history(request, teacher_id):
+    teacher = get_object_or_404(Teacher, pk=teacher_id)
+    adjustments = (
+        Adjustment.objects.filter(teacher=teacher)
+        .select_related("attendance_record", "recorded_by")
+        .order_by("-created_at")
+    )
+    total_deducted = sum(adjustment.deduct_hours for adjustment in adjustments)
+    return render(
+        request,
+        "attendance/teacher_adjustment_history.html",
+        {"teacher": teacher, "adjustments": adjustments, "total_deducted": total_deducted},
+    )

@@ -4,6 +4,9 @@ from staff.models import FixedStaff, Teacher
 
 
 class TeacherForm(forms.ModelForm):
+    username = forms.CharField(max_length=150, required=True, widget=forms.TextInput(attrs={"class": "form-control"}))
+    password = forms.CharField(required=True, widget=forms.PasswordInput(attrs={"class": "form-control"}))
+
     class Meta:
         model = Teacher
         fields = ["name", "subject", "hourly_rate", "expected_weekly_hours"]

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Adjustment history{% endblock %}
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-slate-900 mb-2">📉 Adjustment History</h1>
+    <p class="text-slate-600">Review all disciplinary hour deductions for {{ teacher.name }}</p>
+</div>
+
+<div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+    <div class="p-6 border-b border-slate-200 flex items-center justify-between">
+        <div>
+            <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Teacher</p>
+            <p class="text-xl font-semibold text-slate-900">{{ teacher.name }}</p>
+        </div>
+        <div class="text-right">
+            <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Total Deducted</p>
+            <p class="text-xl font-semibold text-red-600">{{ total_deducted }}h</p>
+        </div>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr class="border-b border-slate-200 bg-slate-50">
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide">Date</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide">Deducted</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide">Justification</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide">Recorded By</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for adjustment in adjustments %}
+                <tr class="border-b border-slate-200 hover:bg-slate-50 transition-colors">
+                    <td class="px-6 py-4 text-slate-700">{{ adjustment.created_at|date:"d M Y H:i" }}</td>
+                    <td class="px-6 py-4 font-semibold text-red-600">-{{ adjustment.deduct_hours }}h</td>
+                    <td class="px-6 py-4 text-slate-700">{{ adjustment.justification }}</td>
+                    <td class="px-6 py-4 text-slate-700">{{ adjustment.recorded_by|default:"System" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="px-6 py-12 text-center text-slate-500">No adjustments recorded for this teacher yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

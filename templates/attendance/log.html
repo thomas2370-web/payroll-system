@@ -16,7 +16,7 @@
                     <th class="px-6 py-4 text-center text-xs font-semibold text-slate-700 uppercase tracking-wide">Check-in</th>
                     <th class="px-6 py-4 text-center text-xs font-semibold text-slate-700 uppercase tracking-wide">Check-out</th>
                     <th class="px-6 py-4 text-center text-xs font-semibold text-slate-700 uppercase tracking-wide">Hours Worked</th>
-                    {% if user.is_discipline_master %}<th class="px-6 py-4 text-right text-xs font-semibold text-slate-700 uppercase tracking-wide">Actions</th>{% endif %}
+                    {% if user.is_discipline_master or user.is_principal %}<th class="px-6 py-4 text-right text-xs font-semibold text-slate-700 uppercase tracking-wide">Actions</th>{% endif %}
                 </tr>
             </thead>
             <tbody>
@@ -51,18 +51,25 @@
                         {% endif %}
                     </td>
                     <td class="px-6 py-4 text-center font-semibold text-slate-900">{{ r.hours_worked }}h</td>
-                    {% if user.is_discipline_master %}
+                    {% if user.is_discipline_master or user.is_principal %}
                     <td class="px-6 py-4 text-right">
-                        <a href="{% url 'attendance:add_adjustment' r.pk %}" class="inline-flex items-center gap-1 px-3 py-2 border border-red-600 text-red-600 text-sm font-medium rounded-lg hover:bg-red-50 transition-colors duration-200">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M13.477 14.89A6 6 0 015.11 2.526a6 6 0 008.367 8.364m1.497 3.322c.666-1.33 1.25-2.74 1.653-4.186L19 5m-2 5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                            Penalty
-                        </a>
+                        <div class="flex justify-end gap-2">
+                            {% if user.is_discipline_master %}
+                            <a href="{% url 'attendance:add_adjustment' r.pk %}" class="inline-flex items-center gap-1 px-3 py-2 border border-red-600 text-red-600 text-sm font-medium rounded-lg hover:bg-red-50 transition-colors duration-200">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M13.477 14.89A6 6 0 015.11 2.526a6 6 0 008.367 8.364m1.497 3.322c.666-1.33 1.25-2.74 1.653-4.186L19 5m-2 5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                                Penalty
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'attendance:teacher_adjustment_history' r.teacher.pk %}" class="inline-flex items-center gap-1 px-3 py-2 border border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition-colors duration-200">
+                                History
+                            </a>
+                        </div>
                     </td>
                     {% endif %}
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="{% if user.is_discipline_master %}6{% else %}5{% endif %}" class="px-6 py-12 text-center">
+                    <td colspan="{% if user.is_discipline_master or user.is_principal %}6{% else %}5{% endif %}" class="px-6 py-12 text-center">
                         <div class="inline-flex flex-col items-center">
                             <div class="text-4xl mb-2">📭</div>
                             <p class="text-slate-500 font-medium">No attendance records yet</p>

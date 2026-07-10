@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 
+from accounts.models import User
 from accounts.permissions import role_required
 from staff.forms import FixedStaffForm, TeacherForm
 from staff.models import FixedStaff, Teacher
@@ -16,7 +17,6 @@ def teacher_register(request):
             username = form.cleaned_data["username"]
             password = form.cleaned_data["password"]
             teacher_user = User.objects.filter(username=username).first()
-            created = teacher_user is None
 
             if teacher_user is None:
                 teacher_user = User.objects.create_user(

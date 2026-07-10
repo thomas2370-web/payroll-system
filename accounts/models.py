@@ -10,6 +10,7 @@ class User(AbstractUser):
     """
 
     class Role(models.TextChoices):
+        SUPER_ADMIN = "SUPER_ADMIN", "Super Admin"
         PRINCIPAL = "PRINCIPAL", "Principal"
         DISCIPLINE_MASTER = "DISCIPLINE_MASTER", "Discipline Master"
         ACCOUNTANT = "ACCOUNTANT", "Accountant"
@@ -17,6 +18,10 @@ class User(AbstractUser):
         TEACHER = "TEACHER", "Teacher"
 
     role = models.CharField(max_length=20, choices=Role.choices)
+
+    @property
+    def is_super_admin(self):
+        return self.role == self.Role.SUPER_ADMIN
 
     @property
     def is_principal(self):
